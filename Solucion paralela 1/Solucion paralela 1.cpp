@@ -1,20 +1,51 @@
-// Solucion paralela 1.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
 #include <iostream>
+#include <omp.h>
+
+#define N 1000
+#define chunk 100
+#define mostrar 10
+
+void imprimeArreglo(float* d);
 
 int main()
 {
-    std::cout << "Hello World!\n";
+    std::cout << "Sumando Arreglos en Paralelo!\n";
+    float a[N], b[N], c[N];
+    int i;
+
+    // Asume que N y chunk están definidos previamente
+    for (i = 0; i < N; i++)
+    {
+        a[i] = rand() % 100;         // Asigna un valor aleatorio entre 0 y 99
+        b[i] = (rand() % 1000) / 10.0; // Asigna un valor aleatorio entre 0.0 y 99.9
+    }
+
+    int pedazos = chunk;
+
+#pragma omp parallel for \
+        shared(a, b, c, pedazos) private(i) \
+        schedule(static, pedazos)
+
+    for (i = 0; i < N; i++)
+    {
+        c[i] = a[i] + b[i];
+    }
+
+    std::cout << "Imprimiendo los primeros " << mostrar << " valores del arreglo a: " << std::endl;
+    imprimeArreglo(a);
+    std::cout << "Imprimiendo los primeros " << mostrar << " valores del arreglo b: " << std::endl;
+    imprimeArreglo(b);
+    std::cout << "Imprimiendo los primeros " << mostrar << " valores del arreglo c: " << std::endl;
+    imprimeArreglo(c);
+
+    return 0;
 }
 
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
+void imprimeArreglo(float* d)
+{
+    for (int x = 0; x < mostrar; x++)
+    {
+        std::cout << d[x] << " - ";
+    }
+    std::cout << std::endl;
+}
